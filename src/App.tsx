@@ -1,9 +1,9 @@
-import Auth from './components/Auth'
+import CourseDetails from './components/CourseDetails'
 
 export default function App() {
   return (
     <>
-      <Auth />
+      <CourseDetails />
     </>
   )
 }
