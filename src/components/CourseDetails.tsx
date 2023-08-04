@@ -2,37 +2,70 @@ import {
   Box,
   Paper,
   Table,
-  TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  TextField,
 } from '@mui/material'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
-import ActionButton from './ActionButton'
-import { course1 } from '../data/course-1'
+import { useAppDispatch, useAppSelector } from '../hooks/hooks'
+import { sortProperty } from '../store/courseSlice'
+import type { Sort } from '../store/courseSlice'
+import DetailsList from './DetailsList'
+import SearchBar from './SearchBar'
+import IconButton from './IconButton'
 
 export default function CourseDetails() {
+  const dispatch = useAppDispatch()
+
+  const { mutatedDetails } = useAppSelector((state) => state.course)
+
+  const sort = (config: Sort) => {
+    const { prop, order } = config
+    dispatch(sortProperty({ prop, order }))
+  }
+
   return (
-    <Box>
-      <TextField label="Search topic by name" />
+    <Box marginTop={10}>
+      <SearchBar />
+
       <TableContainer component={Paper}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>
-                Topic name
-                <ActionButton icon={ArrowUpwardIcon} />
-                <ActionButton icon={ArrowDownwardIcon} />
+                <IconButton
+                  onClick={() => sort({ prop: 'id', order: 'asc' })}
+                  icon="#"
+                />
               </TableCell>
+
+              <TableCell>
+                Topic name
+                <IconButton
+                  icon={<ArrowUpwardIcon />}
+                  onClick={() => sort({ prop: 'name', order: 'asc' })}
+                />
+                <IconButton
+                  icon={<ArrowDownwardIcon />}
+                  onClick={() => sort({ prop: 'name', order: 'desc' })}
+                />
+              </TableCell>
+
               <TableCell>
                 Planned date
-                <ActionButton icon={ArrowUpwardIcon} />
-                <ActionButton icon={ArrowDownwardIcon} />
+                <IconButton
+                  icon={<ArrowUpwardIcon />}
+                  onClick={() => sort({ prop: 'date', order: 'asc' })}
+                />
+                <IconButton
+                  icon={<ArrowDownwardIcon />}
+                  onClick={() => sort({ prop: 'date', order: 'desc' })}
+                />
               </TableCell>
+
               <TableCell> Short description </TableCell>
               <TableCell> Type </TableCell>
               <TableCell> Status </TableCell>
@@ -40,20 +73,7 @@ export default function CourseDetails() {
             </TableRow>
           </TableHead>
 
-          <TableBody>
-            {course1.details.map(
-              ({ id, name, date, description, type, completed }) => (
-                <TableRow key={id}>
-                  <TableCell> {name} </TableCell>
-                  <TableCell> {date} </TableCell>
-                  <TableCell> {description} </TableCell>
-                  <TableCell> {type}</TableCell>
-                  <TableCell>{completed ? 'Passed' : 'Upcoming'}</TableCell>
-                  <TableCell> Notes </TableCell>
-                </TableRow>
-              )
-            )}
-          </TableBody>
+          <DetailsList mutatedDetails={mutatedDetails} />
         </Table>
       </TableContainer>
     </Box>
