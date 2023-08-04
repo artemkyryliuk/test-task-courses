@@ -1,13 +1,15 @@
-export type CourseDetails = {
+export interface Detail {
   id: number
   name: string
   date: string
   description: string
-  type: 'lecture' | 'practical session'
+  type: 'Lecture' | 'Practical session'
   completed: boolean
-}[]
+  notes?: string
+}
 
-export type Course = {
+export interface Course {
   courseName: string
-  details: CourseDetails
+  details: Detail[]
+  mutatedDetails: Detail[]
 }
