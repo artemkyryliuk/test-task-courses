@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   Box,
   Paper,
@@ -6,76 +7,103 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from '@mui/material'
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
-import { useAppDispatch, useAppSelector } from '../hooks/hooks'
-import { sortProperty } from '../store/courseSlice'
-import type { Sort } from '../store/courseSlice'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+
+import { useAppSelector } from '../hooks/hooks'
+import { sortBy } from '../utils/sortBy'
 import DetailsList from './DetailsList'
 import SearchBar from './SearchBar'
 import IconButton from './IconButton'
+import type { Detail, Order, SortKeys } from '../data/courses'
+import Header from './Headet'
 
-export default function CourseDetails() {
-  const dispatch = useAppDispatch()
+export default function CourseDetails({
+  courseIndex,
+}: {
+  courseIndex: number
+}) {
+  const { courses } = useAppSelector((state) => state.course)
+  const initialDetails = courses[courseIndex].details
 
-  const { mutatedDetails } = useAppSelector((state) => state.course)
+  const [details, setDetails] = useState<{
+    searchQuery: string
+    sorted: Detail[]
+    filtered: Detail[]
+  }>({
+    searchQuery: '',
+    sorted: initialDetails,
+    filtered: initialDetails,
+  })
 
-  const sort = (config: Sort) => {
-    const { prop, order } = config
-    dispatch(sortProperty({ prop, order }))
+  const handleSearch = (inputValue: string) => {
+    const searchQuery = inputValue.replace(/[^a-zA-Z]/g, '')
+    const filtered = details.filtered.filter(({ topic }) =>
+      topic.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    setDetails((prev) => ({ ...prev, searchQuery, filtered }))
+  }
+
+  const handleSort = (property: SortKeys, order: Order = 'asc') => {
+    const sorted = sortBy(details.sorted, property, order)
+    setDetails((prev) => ({ ...prev, sorted, filtered: sorted }))
   }
 
   return (
-    <Box marginTop={10}>
-      <SearchBar />
+    <>
+      <Header />
+
+      <Typography align="center" fontWeight={700} component="h3">
+        {courses[courseIndex].courseName}
+      </Typography>
+
+      <SearchBar
+        searchQuery={details.searchQuery}
+        filteredDetails={details.filtered}
+        onChange={handleSearch}
+      />
 
       <TableContainer component={Paper}>
-        <Table stickyHeader>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>
-                <IconButton
-                  onClick={() => sort({ prop: 'id', order: 'asc' })}
-                  icon="#"
-                />
+                <IconButton onClick={() => handleSort('id')} icon="#" />
               </TableCell>
 
-              <TableCell>
-                Topic name
-                <IconButton
-                  icon={<ArrowUpwardIcon />}
-                  onClick={() => sort({ prop: 'name', order: 'asc' })}
-                />
-                <IconButton
-                  icon={<ArrowDownwardIcon />}
-                  onClick={() => sort({ prop: 'name', order: 'desc' })}
-                />
-              </TableCell>
+              {[
+                { label: 'Topic name', property: 'topic' as const },
+                { label: 'Planned date', property: 'date' as const },
+              ].map(({ label, property }) => (
+                <TableCell key={property}>
+                  {label}
+                  <IconButton
+                    icon={<ArrowUpwardIcon />}
+                    onClick={() => handleSort(property)}
+                  />
+                  <IconButton
+                    icon={
+                      <ArrowUpwardIcon sx={{ transform: 'rotate(180deg)' }} />
+                    }
+                    onClick={() => handleSort(property, 'desc')}
+                  />
+                </TableCell>
+              ))}
 
-              <TableCell>
-                Planned date
-                <IconButton
-                  icon={<ArrowUpwardIcon />}
-                  onClick={() => sort({ prop: 'date', order: 'asc' })}
-                />
-                <IconButton
-                  icon={<ArrowDownwardIcon />}
-                  onClick={() => sort({ prop: 'date', order: 'desc' })}
-                />
-              </TableCell>
-
-              <TableCell> Short description </TableCell>
-              <TableCell> Type </TableCell>
-              <TableCell> Status </TableCell>
-              <TableCell> Notes </TableCell>
+              {['Short description', 'Type', 'Status', 'Notes'].map((item) => (
+                <TableCell key={item}> {item} </TableCell>
+              ))}
             </TableRow>
           </TableHead>
 
-          <DetailsList mutatedDetails={mutatedDetails} />
+          <DetailsList
+            courseIndex={courseIndex}
+            filteredDetails={details.filtered}
+          />
         </Table>
       </TableContainer>
-    </Box>
+    </>
   )
 }

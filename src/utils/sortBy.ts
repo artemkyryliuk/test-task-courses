@@ -1,9 +1,13 @@
-export const sortBy = <T extends Record<K, string | number>, K extends keyof T>(
-  array: T[],
-  property: K,
-  order: 'asc' | 'desc'
+import type { Detail, Order, SortKeys } from '../data/courses'
+
+export const sortBy = (
+  array: Detail[],
+  property: SortKeys,
+  order: Order = 'asc'
 ) => {
-  return array.sort((a, b) => {
+  const arrayCopy = [...array]
+
+  return arrayCopy.sort((a, b) => {
     const aValue = a[property]
     const bValue = b[property]
 
