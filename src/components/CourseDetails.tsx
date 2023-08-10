@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
-  Box,
   Paper,
   Table,
   TableCell,
@@ -14,11 +13,12 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 
 import { useAppSelector } from '../hooks/hooks'
 import { sortBy } from '../utils/sortBy'
-import DetailsList from './DetailsList'
+import Header from './Headet'
 import SearchBar from './SearchBar'
+import DetailsList from './DetailsList'
 import IconButton from './IconButton'
 import type { Detail, Order, SortKeys } from '../data/courses'
-import Header from './Headet'
+import { searchBy } from '../utils/searchBy'
 
 export default function CourseDetails({
   courseIndex,
@@ -38,11 +38,17 @@ export default function CourseDetails({
     filtered: initialDetails,
   })
 
+  useEffect(() => {
+    setDetails({
+      searchQuery: '',
+      sorted: initialDetails,
+      filtered: initialDetails,
+    })
+  }, [courseIndex, initialDetails])
+
   const handleSearch = (inputValue: string) => {
     const searchQuery = inputValue.replace(/[^a-zA-Z]/g, '')
-    const filtered = details.filtered.filter(({ topic }) =>
-      topic.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+    const filtered = searchBy(details.filtered, 'topic', searchQuery)
     setDetails((prev) => ({ ...prev, searchQuery, filtered }))
   }
 
@@ -55,7 +61,13 @@ export default function CourseDetails({
     <>
       <Header />
 
-      <Typography align="center" fontWeight={700} component="h3">
+      <Typography
+        component="h3"
+        align="center"
+        fontSize={24}
+        fontWeight={500}
+        mt={6}
+      >
         {courses[courseIndex].courseName}
       </Typography>
 

@@ -8,7 +8,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/course/:courseId" index element={<CourseDetailsPage />} />
+      <Route path="/course/:courseId" element={<CourseDetailsPage />} />
 
       <Route path="/login" element={<LoginPage />} />
 

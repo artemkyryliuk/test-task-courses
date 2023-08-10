@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import {
   Card,
   CardMedia,
@@ -10,8 +11,10 @@ import {
 
 export default function CourseCard({
   course,
+  courseIndex,
 }: {
   course: { courseName: string; courseDescription: string }
+  courseIndex: number
 }) {
   return (
     <Grid item>
@@ -25,12 +28,16 @@ export default function CourseCard({
           <Typography gutterBottom variant="h5" component="div">
             {course.courseName}
           </Typography>
+
           <Typography variant="body2" color="text.secondary">
             {course.courseDescription}
           </Typography>
         </CardContent>
+
         <CardActions>
-          <Button size="small"> View course dertails </Button>
+          <Link to={`/course/${courseIndex + 1}`}>
+            <Button size="small"> View course dertails </Button>
+          </Link>
         </CardActions>
       </Card>
     </Grid>
