@@ -12,13 +12,13 @@ import {
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 
 import { useAppSelector } from '../hooks/hooks'
+import { searchBy } from '../utils/searchBy'
 import { sortBy } from '../utils/sortBy'
 import Header from './Headet'
 import SearchBar from './SearchBar'
 import DetailsList from './DetailsList'
 import IconButton from './IconButton'
 import type { Detail, Order, SortKeys } from '../data/courses'
-import { searchBy } from '../utils/searchBy'
 
 export default function CourseDetails({
   courseIndex,
@@ -48,8 +48,10 @@ export default function CourseDetails({
 
   const handleSearch = (inputValue: string) => {
     const searchQuery = inputValue.replace(/[^a-zA-Z]/g, '')
-    const filtered = searchBy(details.filtered, 'topic', searchQuery)
+    const filtered = searchBy(details.sorted, 'topic', searchQuery)
     setDetails((prev) => ({ ...prev, searchQuery, filtered }))
+
+    console.log(filtered)
   }
 
   const handleSort = (property: SortKeys, order: Order = 'asc') => {
