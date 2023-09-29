@@ -1,10 +1,6 @@
-import {
-  TableBody,
-  TableRow,
-  TableCell as Cell,
-  TextField,
-  Box,
-} from '@mui/material'
+import { useState } from 'react'
+import { Navigate } from 'react-router-dom'
+import { TableBody, TableRow, TableCell, TextField, Box } from '@mui/material'
 import SchoolIcon from '@mui/icons-material/School'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 import DoneIcon from '@mui/icons-material/Done'
@@ -13,9 +9,9 @@ import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
 
 import { useAppDispatch, useAppSelector } from '../hooks/hooks'
-import { editNote, saveNote } from '../store/courseSlice'
+import { updateCourses } from '../store/courseSlice'
 import IconButton from './IconButton'
-import { Detail } from '../data/courses'
+import type { Detail } from '../data/courses'
 
 export default function DetailsList({
   courseIndex,
@@ -24,84 +20,113 @@ export default function DetailsList({
   courseIndex: number
   filteredDetails: Detail[]
 }) {
-  const editingIDs = useAppSelector((state) => state.course.editiingIDs)
+  const isLogined = useAppSelector((state) => state.auth.isLogined)
+
+  const courses = useAppSelector((state) => state.courses)
   const dispatch = useAppDispatch()
 
+  const [editingIDs, setEditingIDs] = useState<number[]>([])
+
+  const handleEditNote = (id: number) => {
+    setEditingIDs([...editingIDs, id])
+  }
+
+  const handleSaveNote = (e: React.FormEvent<HTMLFormElement>, id: number) => {
+    e.preventDefault()
+
+    const text = e.currentTarget.note.value || ''
+
+    const updatedCourses = courses.map((course, index) => {
+      if (index !== courseIndex) {
+        return course
+      }
+
+      const updatedDetails = course.details.map((detail) => {
+        if (detail.id === id) {
+          return { ...detail, notes: text }
+        }
+        return detail
+      })
+
+      return { ...course, details: updatedDetails }
+    })
+
+    dispatch(updateCourses(updatedCourses))
+    const updatedEditingIDs = editingIDs.filter((editedID) => editedID !== id)
+    setEditingIDs(updatedEditingIDs)
+  }
+
   return (
-    <TableBody>
-      {filteredDetails.map(
-        ({ id, topic, date, description, type, completed, notes }) => (
-          <TableRow key={id}>
-            <Cell> {id} </Cell>
-            <Cell> {topic} </Cell>
-            <Cell sx={{ width: 200 }}>{date}</Cell>
-            <Cell> {description} </Cell>
+    <>
+      {isLogined ? (
+        <TableBody>
+          {filteredDetails.map(
+            ({ id, topic, date, description, type, completed, notes }) => (
+              <TableRow key={id}>
+                <TableCell> {id} </TableCell>
+                <TableCell> {topic} </TableCell>
+                <TableCell sx={{ width: 200 }}>{date}</TableCell>
+                <TableCell> {description} </TableCell>
 
-            <Cell sx={{ width: 200 }}>
-              {type === 'lecture' ? (
-                <Box display="flex" alignItems="center">
-                  <IconButton icon={<SchoolIcon />} />
-                  <p> Lecture </p>
-                </Box>
-              ) : (
-                <Box display="flex" alignItems="center">
-                  <IconButton icon={<ListAltIcon />} />
-                  <p> Practical session </p>
-                </Box>
-              )}
-            </Cell>
+                <TableCell sx={{ width: 200 }}>
+                  {type === 'lecture' ? (
+                    <Box display="flex" alignItems="center">
+                      <IconButton icon={<SchoolIcon />} />
+                      <p> Lecture </p>
+                    </Box>
+                  ) : (
+                    <Box display="flex" alignItems="center">
+                      <IconButton icon={<ListAltIcon />} />
+                      <p> Practical session </p>
+                    </Box>
+                  )}
+                </TableCell>
 
-            <Cell sx={{ width: 200 }}>
-              {completed ? (
-                <IconButton icon={<DoneIcon color="success" />} />
-              ) : (
-                <IconButton icon={<UpcomingIcon color="info" />} />
-              )}
-            </Cell>
+                <TableCell sx={{ width: 200 }}>
+                  {completed ? (
+                    <IconButton icon={<DoneIcon color="success" />} />
+                  ) : (
+                    <IconButton icon={<UpcomingIcon color="info" />} />
+                  )}
+                </TableCell>
 
-            <Cell sx={{ width: 250 }}>
-              {editingIDs.includes(id) ? (
-                <form
-                  onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-                    e.preventDefault()
-                    const text = e.currentTarget.note?.value || ''
-                    dispatch(
-                      saveNote({
-                        courseIndex,
-                        editId: id,
-                        text,
-                      })
-                    )
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <IconButton
-                      type="submit"
-                      icon={<SaveIcon color="info" />}
-                    />
+                <TableCell sx={{ width: 250 }}>
+                  {editingIDs.includes(id) ? (
+                    <form onSubmit={(e) => handleSaveNote(e, id)}>
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
+                        <IconButton
+                          type="submit"
+                          icon={<SaveIcon color="info" />}
+                        />
 
-                    <TextField
-                      autoFocus
-                      name="note"
-                      defaultValue={notes}
-                      variant="standard"
-                    />
-                  </Box>
-                </form>
-              ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <IconButton
-                    icon={<EditIcon />}
-                    onClick={() => dispatch(editNote(id))}
-                  />
+                        <TextField
+                          autoFocus
+                          name="note"
+                          defaultValue={notes}
+                          variant="standard"
+                        />
+                      </Box>
+                    </form>
+                  ) : (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <IconButton
+                        icon={<EditIcon />}
+                        onClick={() => handleEditNote(id)}
+                      />
 
-                  {notes}
-                </Box>
-              )}
-            </Cell>
-          </TableRow>
-        )
+                      {notes}
+                    </Box>
+                  )}
+                </TableCell>
+              </TableRow>
+            )
+          )}
+        </TableBody>
+      ) : (
+        <Navigate to="/login" replace={true} />
       )}
-    </TableBody>
+    </>
   )
 }

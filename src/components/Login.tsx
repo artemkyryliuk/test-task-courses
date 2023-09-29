@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import {
   Box,
   Button,
@@ -5,19 +6,29 @@ import {
   FormLabel,
   Paper,
   Stack,
+  TextField,
 } from '@mui/material'
 
+import { useAppDispatch } from '../hooks/hooks'
+import { setIsLogined } from '../store/authSlice'
 import bg from '/src/assets/bg.svg'
-import TextField from '@mui/material/TextField'
 
 export default function Login() {
+  const navigate = useNavigate()
+
+  const dispatch = useAppDispatch()
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
     const { login, password } = e.currentTarget
+
     if (login.value === 'admin' && password.value === 'admin') {
+      dispatch(setIsLogined(true))
+      navigate('/')
       console.log('%c--- Authorized succesfully ---', 'color: lime')
     } else {
-      console.log('%c--- Wrong login/password ---', 'color: red')
+      console.log('%c--- Wrong login/password! ---', 'color: red')
     }
   }
 

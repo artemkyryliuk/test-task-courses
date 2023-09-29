@@ -1,12 +1,10 @@
 import { Container, Grid } from '@mui/material'
 
-import { useAppSelector } from '../hooks/hooks'
-import Header from './Headet'
+import Header from './Header'
 import CourseCard from './CourseCard'
+import { courses } from '../data/courses'
 
 export default function CoursesList() {
-  const { courses } = useAppSelector((state) => state.course)
-
   return (
     <>
       <Header />

@@ -14,7 +14,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import { useAppSelector } from '../hooks/hooks'
 import { searchBy } from '../utils/searchBy'
 import { sortBy } from '../utils/sortBy'
-import Header from './Headet'
+import Header from './Header'
 import SearchBar from './SearchBar'
 import DetailsList from './DetailsList'
 import IconButton from './IconButton'
@@ -25,7 +25,7 @@ export default function CourseDetails({
 }: {
   courseIndex: number
 }) {
-  const { courses } = useAppSelector((state) => state.course)
+  const courses = useAppSelector((state) => state.courses)
   const initialDetails = courses[courseIndex].details
 
   const [details, setDetails] = useState<{
@@ -50,8 +50,6 @@ export default function CourseDetails({
     const searchQuery = inputValue.replace(/[^a-zA-Z]/g, '')
     const filtered = searchBy(details.sorted, 'topic', searchQuery)
     setDetails((prev) => ({ ...prev, searchQuery, filtered }))
-
-    console.log(filtered)
   }
 
   const handleSort = (property: SortKeys, order: Order = 'asc') => {

@@ -1,4 +1,4 @@
-export interface Detail {
+export type Detail = {
   id: number
   topic: string
   date: string
@@ -8,7 +8,7 @@ export interface Detail {
   notes?: string
 }
 
-export interface Course {
+export type Course = {
   courseName: string
   courseDescription: string
   details: Detail[]
